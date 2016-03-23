@@ -1,10 +1,5 @@
 #include "swarm_control_algorithm.h"
 
-#include <time.h>
-#include <cstdlib>
-
-using namespace std;
-//ExampleRosClass::ExampleRosClass(ros::NodeHandle* nodehandle):nh_(*nodehandle)
 
 SwarmControlAlgorithm::SwarmControlAlgorithm(ros::NodeHandle& nh) :
 		nh_(nh) {
@@ -38,10 +33,14 @@ SwarmControlAlgorithm::SwarmControlAlgorithm(ros::NodeHandle& nh) :
 	halt_twist_.angular.z = 0.0;
 }
 
-//member helper function to set up publishers;
 
+/**
+* Initialize publishers
+*
+*/
 void SwarmControlAlgorithm::initializePublishers() {
-	ROS_INFO("Initializing Publishers");
+
+	ROS_INFO("Initializing Publishers ...");
 	
 	desired_state_publisher_1 = nh_.advertise < nav_msgs::Odometry > ("robot1/desState", 1, true);
 	des_psi_publisher_1 = nh_.advertise < std_msgs::Float64 > ("robot1/desPsi", 1);
@@ -78,7 +77,7 @@ void SwarmControlAlgorithm::set_initial_position(std::vector<double> x_vec, std:
 * Initialize desired positions
 *
 */
-void SwarmControlAlgorithm::set_des_pose(double x, double y, double psi) {
+void SwarmControlAlgorithm::set_target_position(double x, double y, double psi) {
 	// build the pose for the robot leader
 	target_pose[0] = trajBuilder_.xyPsi2PoseStamped(x, y, psi);
 

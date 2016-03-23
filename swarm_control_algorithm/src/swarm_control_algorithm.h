@@ -8,6 +8,8 @@
 #include "trajectory_plan.cpp"
 #include <std_msgs/Float64.h>
 #include <math.h>
+#include <time.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -23,6 +25,7 @@ const double dange_range_1 = M_PI/4;
 const double dange_range_2 = M_PI/8;  //may need to  be tuned!!!!!!!!!
 
 const int robot_quantity = 6;
+
 
 class SwarmControlAlgorithm {
 private:
@@ -73,7 +76,7 @@ public:
     std::vector<int> vec_of_decision;
 
     void set_initial_position(std::vector<double> x_vec, std::vector<double> y_vec);
-    void set_des_pose(double x,double y, double psi);
+    void set_target_position(double x,double y, double psi);
 
 	void swarm_obstacles_state(std::vector<geometry_msgs::PoseStamped> obst_posi,
 			geometry_msgs::PoseStamped robot_pose,

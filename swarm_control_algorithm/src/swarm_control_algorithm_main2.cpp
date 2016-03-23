@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     //put some points in the path queue--hard coded here
 
     swarm_control_algorithm.set_initial_position(g_robot_x, g_robot_y);
-    swarm_control_algorithm.set_des_pose(g_robot_x[0], g_robot_y[0], 0.0);
+    swarm_control_algorithm.set_target_position(g_robot_x[0], g_robot_y[0], 0.0);
     ROS_INFO("******* x: %f, y: %f ********", g_robot_x[0], g_robot_y[0]);
 
     /*

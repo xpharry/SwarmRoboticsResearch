@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 
   swarm_control_algorithm.set_initial_position(x_vec, y_vec);  ///psi defined to be 0 
 
-  swarm_control_algorithm.set_des_pose(10.0, 10.0, 0.0);
+  swarm_control_algorithm.set_target_position(10.0, 10.0, 0.0);
 /*
 need to know obst_positions
 */
