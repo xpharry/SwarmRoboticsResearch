@@ -17,9 +17,11 @@ catkin_simple()
 # Executables
 cs_add_executable(two_wheel_dispersion src/two_wheel_dispersion.cpp)
 cs_add_executable(two_wheel_line_formation src/two_wheel_line_formation.cpp)
+cs_add_executable(driving_single_robot src/driving_single_robot.cpp)
 
 target_link_libraries(two_wheel_dispersion ${catkin_LIBRARIES})
 target_link_libraries(two_wheel_line_formation ${catkin_LIBRARIES})
+target_link_libraries(driving_single_robot ${catkin_LIBRARIES})
 
 cs_install()
 cs_export()

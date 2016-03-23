@@ -44,11 +44,11 @@ std::string intToString(int a) {
 void twoWheelPosesCallback(const swarm_robot_msgs::two_wheel_poses& message_holder) {
     if (!g_poses_callback_started)  // first time to be invoked
         g_poses_callback_started = true;
-    g_left_wheel_poses = message_holder.left_wheel_pos;
-    g_left_wheel_vels = message_holder.left_wheel_vel;
-    g_right_wheel_poses = message_holder.right_wheel_pos;
-    g_right_wheel_vels = message_holder.right_wheel_vel;
-    // check if cmd callback started yet
+        g_left_wheel_poses = message_holder.left_wheel_pos;
+        g_left_wheel_vels = message_holder.left_wheel_vel;
+        g_right_wheel_poses = message_holder.right_wheel_pos;
+        g_right_wheel_vels = message_holder.right_wheel_vel;
+        // check if cmd callback started yet
     if (!g_poses_cmd_callback_started) {
         // let the cmd poses be the same as current poses
         g_left_wheel_poses_cmd = g_left_wheel_poses;

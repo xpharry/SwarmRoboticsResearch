@@ -12,8 +12,8 @@
   and should not be changed when the file location is not changed
   to examining the running path of the launch file
   the relative path start with "../ros_ws/src..." also works fine -->
-  <arg name="robot_model_path" default="/home/peng/ros_ws/src/swarm_robot_ros_sim/swarm_robot_description/urdf/two_wheel_robot.urdf"/>
-  <!-- <arg name="robot_model_path" default="../ros_ws/src/swarm_robot_ros_sim/swarm_robot_description/urdf/two_wheel_robot.urdf"/> -->
+ <!-- <arg name="robot_model_path" default="/home/yang/ros_ws/src/swarm_robot_ros_sim/swarm_robot_description/urdf/two_wheel_robot.urdf"/> -->
+  <arg name="robot_model_path" default="../ros_ws/src/swarm_robot_ros_sim/swarm_robot_description/urdf/two_wheel_robot.urdf"/>
   <arg name="robot_quantity" default="10"/>
   <arg name="half_range" default="1.0"/>
 

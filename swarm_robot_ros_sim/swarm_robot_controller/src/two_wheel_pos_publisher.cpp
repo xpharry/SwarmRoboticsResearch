@@ -1,4 +1,4 @@
- // this node will publish the topic "two_wheel_poses"
+// this node will publish the topic "two_wheel_poses"
 // which are the current wheel positions of all robots
 
 // by calling the service: /gazebo/get_joint_properties

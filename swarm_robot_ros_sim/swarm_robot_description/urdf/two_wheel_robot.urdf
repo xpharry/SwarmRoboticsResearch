@@ -121,5 +121,70 @@
 
 </joint>
 
+<link name="lidar_link">
+      <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>              
+             <box size="0.0254 0.0254 0.00154"/>
+          </geometry>
+      </collision>
+
+      <visual>
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+                    <box size="0.0254 0.0254 0.00054"/>
+          </geometry>
+      </visual>
+
+      <inertial>
+          <mass value="0.0005" />
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <inertia ixx="0.000032258" ixy="0" ixz="0" iyy="0.000032258" iyz="0" izz="0.000032258" />
+      </inertial>
+  </link>
+  
+
+  <joint name="lidar_joint" type="fixed">
+      <axis xyz="0 1 0" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="body_link"/>
+      <child link="lidar_link"/>
+  </joint>
+  
+  <gazebo reference="lidar_link">
+    <mu1>100.0</mu1>
+    <mu2>50.0</mu2>
+    <material>Gazebo/Purple</material>
+
+    <sensor type="gpu_ray" name="sick_lidar_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>false</visualize>
+      <update_rate>40</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>181</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.140796</min_angle>
+            <max_angle>3.140796</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.10</min>
+          <max>40.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_lidar_controller" filename="libgazebo_ros_gpu_laser.so">
+        <topicName>/scan1</topicName>
+        <frameName>lidar_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>  
 
 </robot>
