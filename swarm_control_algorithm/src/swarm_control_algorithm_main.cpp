@@ -61,29 +61,29 @@ temp.pose.position.y = 3;
 
   ////swarm_1
   swarm_control_algorithm.swarm_obstacles_state(obst_posi, swarm_control_algorithm.current_pose[0], swarm_control_algorithm.target_pose[0],   ////PSO compute pose vector
-    swarm_control_algorithm.des_state_vec[0]); //des_state_vec_1 
+    swarm_control_algorithm.desired_path[0]); //desired_path_1 
 
   swarm_control_algorithm.swarm_obstacles_state(obst_posi, swarm_control_algorithm.current_pose[1], swarm_control_algorithm.target_pose[1],
-    swarm_control_algorithm.des_state_vec[1]); //des_state_vec_2 
+    swarm_control_algorithm.desired_path[1]); //desired_path_2 
 
   swarm_control_algorithm.swarm_obstacles_state(obst_posi, swarm_control_algorithm.current_pose[2], swarm_control_algorithm.target_pose[2],
-    swarm_control_algorithm.des_state_vec[2]); //des_state_vec_3   
+    swarm_control_algorithm.desired_path[2]); //desired_path_3   
   
   swarm_control_algorithm.swarm_obstacles_state(obst_posi, swarm_control_algorithm.current_pose[3], swarm_control_algorithm.target_pose[3],
-    swarm_control_algorithm.des_state_vec[3]); //des_state_vec_4   
+    swarm_control_algorithm.desired_path[3]); //desired_path_4   
 
   swarm_control_algorithm.swarm_obstacles_state(obst_posi, swarm_control_algorithm.current_pose[4], swarm_control_algorithm.target_pose[4],
-    swarm_control_algorithm.des_state_vec[4]); //des_state_vec_5
+    swarm_control_algorithm.desired_path[4]); //desired_path_5
 
   swarm_control_algorithm.swarm_obstacles_state(obst_posi, swarm_control_algorithm.current_pose[5], swarm_control_algorithm.target_pose[5],
-    swarm_control_algorithm.des_state_vec[5]); //des_state_vec_6  
+    swarm_control_algorithm.desired_path[5]); //desired_path_6  
   // main loop; publish a desired state every iteration
     
   std::vector<nav_msgs::Odometry> vec_of_tran;
   geometry_msgs::PoseStamped new_temp;
-  int des_num =  swarm_control_algorithm.des_state_vec[0].size();
+  int des_num =  swarm_control_algorithm.desired_path[0].size();
   for(int i = 0; i < des_num; i++){
-  	  new_temp.pose.position = swarm_control_algorithm.des_state_vec[0][i].pose.pose.position;
+  	  new_temp.pose.position = swarm_control_algorithm.desired_path[0][i].pose.pose.position;
       double x = new_temp.pose.position.x;
       ROS_INFO("des x %d is: %f", i, x);
 

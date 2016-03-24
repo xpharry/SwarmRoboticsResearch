@@ -1,64 +1,19 @@
 #include "swarm_control_algorithm.h"
 
 
-SwarmControlAlgorithm::SwarmControlAlgorithm(ros::NodeHandle& nh) :
-		nh_(nh) {
-	//as_(nh, "pub_des_state_server", boost::bind(&DesStatePublisher::executeCB, this, _1),false) {
-	//as_.start(); //start the server running
-	//configure the trajectory builder:
-	//dt_ = dt; //send desired-state messages at fixed rate, e.g. 0.02 sec = 50Hz
-	trajBuilder_.set_dt(dt);
-	//dynamic parameters: should be tuned for target system
-	accel_max_ = accel_max;
-	trajBuilder_.set_accel_max(accel_max_);
-	alpha_max_ = alpha_max;
-	trajBuilder_.set_alpha_max(alpha_max_);
-	speed_max_ = speed_max;
-	trajBuilder_.set_speed_max(speed_max_);
-	omega_max_ = omega_max;
-	trajBuilder_.set_omega_max(omega_max_);
-	path_move_tol_ = path_move_tol;
-	trajBuilder_.set_path_move_tol_(path_move_tol_);
-	initializePublishers();
-
+SwarmControlAlgorithm::SwarmControlAlgorithm() {
 	range_1 = dange_range_1;
 	range_2 = dange_range_2;
 
-	//define a halt state; zero speed and spin, and fill with viable coords
-	halt_twist_.linear.x = 0.0;
-	halt_twist_.linear.y = 0.0;
-	halt_twist_.linear.z = 0.0;
-	halt_twist_.angular.x = 0.0;
-	halt_twist_.angular.y = 0.0;
-	halt_twist_.angular.z = 0.0;
-}
-
-
-/**
-* Initialize publishers
-*
-*/
-void SwarmControlAlgorithm::initializePublishers() {
-
-	ROS_INFO("Initializing Publishers ...");
-	
-	desired_state_publisher_1 = nh_.advertise < nav_msgs::Odometry > ("robot1/desState", 1, true);
-	des_psi_publisher_1 = nh_.advertise < std_msgs::Float64 > ("robot1/desPsi", 1);
-
-	desired_state_publisher_2 = nh_.advertise < nav_msgs::Odometry > ("robot2/desState", 1, true);
-	des_psi_publisher_2 = nh_.advertise < std_msgs::Float64 > ("robot2/desPsi", 1);
-
-	desired_state_publisher_3 = nh_.advertise < nav_msgs::Odometry > ("robot3/desState", 1, true);
-	des_psi_publisher_3 = nh_.advertise < std_msgs::Float64 > ("robot3/desPsi", 1);
-
-	desired_state_publisher_4 = nh_.advertise < nav_msgs::Odometry > ("robot4/desState", 1, true);
-	des_psi_publisher_4 = nh_.advertise < std_msgs::Float64 > ("robot4/desPsi", 1);
-
-	desired_state_publisher_5 = nh_.advertise < nav_msgs::Odometry > ("robot5/desState", 1, true);
-	des_psi_publisher_5 = nh_.advertise < std_msgs::Float64 > ("robot5/desPsi", 1);
-
-	desired_state_publisher_6 = nh_.advertise < nav_msgs::Odometry > ("robot6/desState", 1, true);
-	des_psi_publisher_6 = nh_.advertise < std_msgs::Float64 > ("robot6/desPsi", 1);
+	current_pose.resize(robot_quantity);
+    target_pose.resize(robot_quantity);
+    desired_path.resize(robot_quantity);
+    swarm_consump.resize(robot_quantity);
+    for(int i = 0; i < robot_quantity; i++) {
+    	swarm_consump[i].resize(robot_quantity);
+    }
+    vec_of_targets_pose.resize(6);
+    vec_of_decision.resize(6);
 }
 
 
@@ -67,29 +22,85 @@ void SwarmControlAlgorithm::initializePublishers() {
 *
 */
 void SwarmControlAlgorithm::set_initial_position(std::vector<double> x_vec, std::vector<double> y_vec) {
+	ROS_INFO("********* set_initial_position");
 	for(int i = 0; i < robot_quantity; i++) {
-		current_pose[i] = trajBuilder_.xyPsi2PoseStamped(x_vec[i], y_vec[i], 0);
+		ROS_INFO("******** i = %d", i);
+		current_pose[i] = xyPsi2PoseStamped(x_vec[i], y_vec[i], 0);
+		ROS_INFO("********* set_initial_position loop");
 	}
 }
 
 
 /**
-* Initialize desired positions
+* Initialize target positions
 *
 */
 void SwarmControlAlgorithm::set_target_position(double x, double y, double psi) {
+	ROS_INFO("********* set_target_position");
 	// build the pose for the robot leader
-	target_pose[0] = trajBuilder_.xyPsi2PoseStamped(x, y, psi);
+	target_pose[0] = xyPsi2PoseStamped(x, y, psi);
+	ROS_INFO("********* set_target_position mid");
 
 	// compute the poses for the remaining robots
-	trajBuilder_.ComputeSubpositions(target_pose);
+	ComputeSubpositions();
 
-	vec_of_targets_pose.resize(5);
-	for(int i = 0; i < target_pose.size() - 1; i++) {
-		vec_of_targets_pose[i] = target_pose[i+1];
+	for(int i = 0; i < target_pose.size(); i++) {
+		vec_of_targets_pose[i] = target_pose[i];
 	}
+	ROS_INFO("********* set_target_position ends");
 }
 
+
+//for planar motion, converts a quaternion to a scalar heading,
+// where heading is measured CCW from x-axis
+double SwarmControlAlgorithm::convertPlanarQuat2Psi(geometry_msgs::Quaternion quaternion) {
+	double quat_z = quaternion.z;
+	double quat_w = quaternion.w;
+	double psi = 2.0 * atan2(quat_z, quat_w); // cheap conversion from quaternion to heading for planar motion
+	return psi;
+}
+
+
+//given a heading for motion on a plane (as above), convert this to a quaternion
+geometry_msgs::Quaternion SwarmControlAlgorithm::convertPlanarPsi2Quaternion(double psi) {
+	ROS_INFO("********* convertPlanarPsi2Quaternion");
+	geometry_msgs::Quaternion quaternion;
+	quaternion.x = 0.0;
+	quaternion.y = 0.0;
+	quaternion.z = sin(psi / 2.0);
+	quaternion.w = cos(psi / 2.0);
+	return (quaternion);
+}
+
+
+//utility to fill a PoseStamped object from planar x,y,psi info
+geometry_msgs::PoseStamped SwarmControlAlgorithm::xyPsi2PoseStamped(double x, double y, double psi) {
+	ROS_INFO("********* xyPsi2PoseStamped");
+	geometry_msgs::PoseStamped poseStamped; // a pose object to populate
+	poseStamped.pose.orientation = convertPlanarPsi2Quaternion(psi); // convert from heading to corresponding quaternion
+	poseStamped.pose.position.x = x; // keep the robot on the ground!
+	poseStamped.pose.position.y = y; // keep the robot on the ground!
+	poseStamped.pose.position.z = 0.0; // keep the robot on the ground!
+	ROS_INFO("********* xyPsi2PoseStamped ends");
+	return poseStamped;
+}
+
+
+/**
+*  ?????
+*
+*/
+void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::PoseStamped> obst_posi) {
+	for(int i = 0; i < robot_quantity; i++) {
+    	swarm_obstacles_state(obst_posi, current_pose[i], target_pose[i], desired_path[i]); //desired_path_1 
+    }
+}
+
+
+/**
+*  ?????
+*
+*/
 void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::PoseStamped> obst_posi,
 		geometry_msgs::PoseStamped robot_pose,
 		geometry_msgs::PoseStamped target_posi,
@@ -104,9 +115,6 @@ void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::Pos
 	//initialization
 	double x_start = robot_pose.pose.position.x;
 	double y_start = robot_pose.pose.position.y;
-    //probabily no use
-	//double psi = trajBuilder_.convertPlanarQuat2Psi(
-    //robot_pose.pose.orientation);
 
 	srand((unsigned) time( NULL));
 
@@ -137,7 +145,7 @@ void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::Pos
 		local_pose.push_back(temp); //temprary local best
 
 
-		temp_evalu = trajBuilder_.ComputeEvaluation(target_posi, obst_posi,
+		temp_evalu = ComputeEvaluation(target_posi, obst_posi,
 				temp);
 		local_best.push_back(temp_evalu);
 		velocity.push_back(vel);
@@ -156,7 +164,7 @@ void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::Pos
     //initialize global best
 	double best_value;
 	for (int i = 1; i < valid_num; i++) {
-		best_value = trajBuilder_.ComputeEvaluation(target_posi, obst_posi,
+		best_value = ComputeEvaluation(target_posi, obst_posi,
 				global_best);
 		if (local_best[i] < best_value)
 		global_best.pose.position.x = particle_pose[i].pose.position.x; ////////////
@@ -186,7 +194,7 @@ void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::Pos
 			particle_pose[n].pose.position.y = particle_pose[n].pose.position.y
 					+ velocity[n].pose.position.y;
 
-			temp_evalu = trajBuilder_.ComputeEvaluation(target_posi, obst_posi,
+			temp_evalu = ComputeEvaluation(target_posi, obst_posi,
 					particle_pose[n]);
 			if (local_best[n] > temp_evalu) { /// update local best
 				local_best[n] = temp_evalu;
@@ -196,7 +204,7 @@ void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::Pos
 						particle_pose[n].pose.position.y;
 			}
 
-			best_value = trajBuilder_.ComputeEvaluation(target_posi, obst_posi,
+			best_value = ComputeEvaluation(target_posi, obst_posi,
 					global_best);
 			if (best_value > local_best[n]) {
 				global_best.pose.position.x = local_pose[n].pose.position.x;
@@ -215,21 +223,37 @@ void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::Pos
 	vec_of_states.push_back(des_odom);
 }
 
+
+/**
+*  ?????
+*
+*/
 void SwarmControlAlgorithm::ComputeConsumption(std::vector< std::vector<geometry_msgs::PoseStamped>  > obstacles) {
+	ROS_INFO("************ ComputeConsumption");
 	//get all target position not acoordingly	
-	for(int i = 1; i < robot_quantity; i++) {
+	for(int i = 1; i < obstacles.size(); i++) {
+		ROS_INFO("****** i = %d", i);
 		for(int j = 1; j < robot_quantity; j++) {
+			ROS_INFO("****** j = %d", j);
 			swarm_consump[i][j] = SingleConsumpt(target_pose[j], current_pose[i], obstacles[i]);
 		}		
 	}
+	ROS_INFO("************ ComputeConsumption ends");
 }
 
+
+/**
+*  ?????
+*
+*/
 double SwarmControlAlgorithm::SingleConsumpt(geometry_msgs::PoseStamped target,
-	geometry_msgs::PoseStamped robot,
+	geometry_msgs::PoseStamped current,
 	std::vector<geometry_msgs::PoseStamped> obstacle) {
 
-	double target_dx = target.pose.position.x - robot.pose.position.x;
-	double target_dy = target.pose.position.y - robot.pose.position.y;
+	ROS_INFO("************ SingleConsumpt");
+
+	double target_dx = target.pose.position.x - current.pose.position.x;
+	double target_dy = target.pose.position.y - current.pose.position.y;
 	double dist = sqrt(target_dx * target_dx + target_dy * target_dy);
 
 	double obst_dx;
@@ -244,9 +268,11 @@ double SwarmControlAlgorithm::SingleConsumpt(geometry_msgs::PoseStamped target,
 	double total_consumpt;
 	int num = obstacle.size();
 
+	ROS_INFO("************ SingleConsumpt mid");
+
 	for (int i = 0; i < num; i++) {
-		obst_dx = obstacle[i].pose.position.x - robot.pose.position.x;
-		obst_dy = obstacle[i].pose.position.y - robot.pose.position.y;
+		obst_dx = obstacle[i].pose.position.x - current.pose.position.x;
+		obst_dy = obstacle[i].pose.position.y - current.pose.position.y;
 		obst_dist = sqrt(obst_dx * obst_dx + obst_dy * obst_dy);
 
 		dot_product = target_dx * obst_dx + target_dy * obst_dy;
@@ -260,40 +286,42 @@ double SwarmControlAlgorithm::SingleConsumpt(geometry_msgs::PoseStamped target,
 		}
 		total_consumpt += add_consumpt;
 	}
+
+	ROS_INFO("************ SingleConsumpt ends");
 	return dist + total_consumpt + 1; // for convenience of proba
 }
 
-void SwarmControlAlgorithm::DecisionMaker(){
 
-//normalize and change monoton
-//	double delta = max - min;
+/**
+*  ?????
+*
+*/
+void SwarmControlAlgorithm::DecisionMaker() {
+	ROS_INFO("************ DecisionMaker");
+	// normalize and change monoton
+	// double delta = max - min;
 	int num2 = swarm_consump[1].size();
 	for(int i = 0; i < num2; i++){
-//		swarm_consump[1]_vec[i] = (swarm_consump[1]_vec[i] - min)/delta; //normalized
 		swarm_consump[1][i] = 1/swarm_consump[1][i]; //reverse monotonicity
 	}
 
 	int num3 = swarm_consump[2].size();
 	for(int i = 0; i < num3; i++){
-//		swarm_consump[2]_vec[i] = (swarm_consump[2]_vec[i] - min)/delta;
 		swarm_consump[2][i] = 1/swarm_consump[2][i]; //reverse monotonicity
 	}
 
 	int num4 = swarm_consump[3].size();
 	for(int i = 0; i < num4; i++){
-//		swarm_consump[3]_vec[i] = (swarm_consump[3]_vec[i] - min)/delta;
 		swarm_consump[3][i] = 1/swarm_consump[3][i]; //reverse monotonicity		
 	}
 
 	int num5 = swarm_consump[4].size();
 	for(int i = 0; i < num5; i++){
-//		swarm_consump[4]_vec[i] = (swarm_consump[4]_vec[i] - min)/delta;
 		swarm_consump[4][i] = 1/swarm_consump[4][i]; //reverse monotonicity		
 	}	
 
 	int num6 = swarm_consump[5].size();
 	for(int i = 0; i < num6; i++){
-//		swarm_consump[5]_vec[i] = (swarm_consump[5]_vec[i] - min)/delta;
 		swarm_consump[5][i] = 1/swarm_consump[5][i]; //reverse monotonicity		
 	}	
  
@@ -307,55 +335,70 @@ void SwarmControlAlgorithm::DecisionMaker(){
     double Entropy;
     double BestEntropy = 1000;
     std::vector<double> vec_of_proby;
-    vec_of_proby.push_back(0.0); //as clear may let core dumpt
-    // vec_of_decision.push_back(0);
-    vec_of_decision.resize(5);
+    vec_of_proby.resize(6); //as clear may let core dumpt
+    vec_of_proby[0] = 1;
+    vec_of_decision[0] = 1;
     
-    for(int i_2 = 0; i_2 < num2; i_2++){
-    	for(int i_3 = 0; i_3 < num3; i_3++){
+    ROS_INFO("************ DecisionMaker 1");
+
+    for(int i_2 = 0; i_2 < num2; i_2++) {
+    	for(int i_3 = 0; i_3 < num3; i_3++) {
             if(i_2 != i_3){
-                for(int i_4 = 0; i_4 < num4; i_4++){
+                for(int i_4 = 0; i_4 < num4; i_4++) {
                     if(i_4 != i_3 && i_4 != i_2){
                         for(int i_5 = 0; i_5 < num5; i_5++){
-                            if(i_5 != i_4 && i_5 != i_3 && i_5 != i_2){
+                            if(i_5 != i_4 && i_5 != i_3 && i_5 != i_2) {
                                for(int i_6 = 0; i_6 < num6; i_6++){
-                               	  if(i_6 != i_5 && i_6 != i_4 && i_6 != i_3 && i_6 != i_2){
-                               	  	//normalize
-	                                     norm = sqrt(swarm_consump[1][i_2]*swarm_consump[1][i_2] + 
-	                                     swarm_consump[2][i_3]*swarm_consump[2][i_3] + 
-	                                     swarm_consump[3][i_4]*swarm_consump[3][i_4] + 
-	                                     swarm_consump[4][i_5]*swarm_consump[4][i_5] + 
-	                                     swarm_consump[5][i_6]*swarm_consump[5][i_6]);
-	                                     proby_2 = swarm_consump[1][i_2]/norm;
-	                                     proby_3 = swarm_consump[2][i_3]/norm;
-	                                     proby_4 = swarm_consump[3][i_4]/norm;
-	                                     proby_5 = swarm_consump[4][i_5]/norm;
-	                                     proby_6 = swarm_consump[5][i_5]/norm;
-                                        Entropy = -(proby_2 * log(proby_2) + proby_3 * log(proby_3) + proby_3 * log(proby_3)
-                                         + proby_4 * log(proby_4) + proby_5 * log(proby_5) + proby_6 * log(proby_6));
-                                        if(Entropy < BestEntropy){   // if not minimal, replace
-                                        	BestEntropy = Entropy;
-                                        	vec_of_proby.clear();
-                                        	vec_of_proby.push_back(swarm_consump[1][i_2]);
-                                        	vec_of_proby.push_back(swarm_consump[2][i_3]);
-                                        	vec_of_proby.push_back(swarm_consump[3][i_4]);
-                                        	vec_of_proby.push_back(swarm_consump[4][i_5]);
-                                        	vec_of_proby.push_back(swarm_consump[5][i_6]);
+                               	  if(i_6 != i_5 && i_6 != i_4 && i_6 != i_3 && i_6 != i_2) {
+									//normalize
+									norm = sqrt(swarm_consump[1][i_2]*swarm_consump[1][i_2] + 
+										swarm_consump[2][i_3]*swarm_consump[2][i_3] + 
+										swarm_consump[3][i_4]*swarm_consump[3][i_4] + 
+										swarm_consump[4][i_5]*swarm_consump[4][i_5] + 
+										swarm_consump[5][i_6]*swarm_consump[5][i_6]);
+									proby_2 = swarm_consump[1][i_2]/norm;
+									proby_3 = swarm_consump[2][i_3]/norm;
+									proby_4 = swarm_consump[3][i_4]/norm;
+									proby_5 = swarm_consump[4][i_5]/norm;
+									proby_6 = swarm_consump[5][i_5]/norm;
+									Entropy = -(proby_2 * log(proby_2) + proby_3 * log(proby_3) + proby_3 * log(proby_3)
+										+ proby_4 * log(proby_4) + proby_5 * log(proby_5) + proby_6 * log(proby_6));
 
-                                        	vec_of_decision.clear();
-                                        	vec_of_decision.push_back(i_2 + 2);  ///index is from 0, but our target position is from 2
-                                        	vec_of_decision.push_back(i_3 + 2);
-                                        	vec_of_decision.push_back(i_4 + 2);
-                                        	vec_of_decision.push_back(i_5 + 2);
-                                        	vec_of_decision.push_back(i_6 + 2);
+									ROS_INFO("************ DecisionMaker 1.5");
 
-                                        	target_pose[1] = vec_of_targets_pose[i_2];
-                                        	target_pose[2] = vec_of_targets_pose[i_3];
-                                        	target_pose[3] = vec_of_targets_pose[i_4];
-                                        	target_pose[4] = vec_of_targets_pose[i_5];
-                                        	target_pose[5] = vec_of_targets_pose[i_6];
-                                        	
-                                        }
+                                    if(Entropy < BestEntropy) {   // if not minimal, replace
+                                    	ROS_INFO("************ DecisionMaker 1.7");
+										BestEntropy = Entropy;
+
+										vec_of_proby[1] = swarm_consump[1][i_2];
+										vec_of_proby[2] = swarm_consump[2][i_3];
+										vec_of_proby[3] = swarm_consump[3][i_4];
+										vec_of_proby[4] = swarm_consump[4][i_5];
+										vec_of_proby[5] = swarm_consump[5][i_6];
+
+										vec_of_decision.clear();
+										vec_of_decision[1] = i_2 + 2;  ///index is from 0, but our target position is from 2
+										vec_of_decision[2] = i_3 + 2;
+										vec_of_decision[3] = i_4 + 2;
+										vec_of_decision[4] = i_5 + 2;
+										vec_of_decision[5] = i_6 + 2;
+
+										ROS_INFO("************ DecisionMaker 1.75");
+
+										ROS_INFO("************ i_2 = %d", i_2);
+										ROS_INFO("************ i_3 = %d", i_3);
+										ROS_INFO("************ i_4 = %d", i_4);
+										ROS_INFO("************ i_5 = %d", i_5);
+										ROS_INFO("************ i_6 = %d", i_6);
+
+										target_pose[1] = vec_of_targets_pose[i_2];
+										target_pose[2] = vec_of_targets_pose[i_3];
+										target_pose[3] = vec_of_targets_pose[i_4];
+										target_pose[4] = vec_of_targets_pose[i_5];
+										target_pose[5] = vec_of_targets_pose[i_6];
+
+										ROS_INFO("************ DecisionMaker 1.8");
+                                    }
                                	  }
                                }
                             }
@@ -366,19 +409,76 @@ void SwarmControlAlgorithm::DecisionMaker(){
        }
     }
 
+    ROS_INFO("************ DecisionMaker 2");
 
- int decision_index = 0;
- int decision_scale = vec_of_decision.size();
- for (int i = 0; i < decision_scale; i ++) {
- 	 decision_index = vec_of_decision[i];
-     ROS_INFO("in order from 2 to 6, targets are: %d", decision_index);
- }
+	int decision_index = 0;
+	int decision_scale = vec_of_decision.size();
+	for (int i = 0; i < decision_scale; i ++) {
+		decision_index = vec_of_decision[i];
+		ROS_INFO("in order from 2 to 6, targets are: %d", decision_index);
+	}
 
-
-
-
+	ROS_INFO("************ DecisionMaker");
 }
 
-void SwarmControlAlgorithm::build_point_and_go(geometry_msgs::PoseStamped start_pose, geometry_msgs::PoseStamped end_pose, std::vector<nav_msgs::Odometry> &vec_states){
-	trajBuilder_.build_point_and_go_traj(start_pose,end_pose,vec_states);
+
+/**
+*  ?????
+*
+*/
+double SwarmControlAlgorithm::ComputeEvaluation(geometry_msgs::PoseStamped target_posi, std::vector<geometry_msgs::PoseStamped> obst_posi, geometry_msgs::PoseStamped robot_posi) {
+	   double w1 = 1000;
+	   double w2 = 800;
+
+	   double tar_dx = robot_posi.pose.position.x - target_posi.pose.position.x;
+	   double tar_dy = robot_posi.pose.position.y - target_posi.pose.position.y;
+	   double tar_dist = sqrt(tar_dx * tar_dx + tar_dy * tar_dy);
+
+	   double obs_dx;
+	   double obs_dy;
+	   double obs_dist;
+
+	   double evaluation = w1 * tar_dist;
+       int obst_num = obst_posi.size();
+	   for(int i = 0; i< obst_num; i++){
+		   obs_dx = robot_posi.pose.position.x - obst_posi[i].pose.position.x;
+		   obs_dy = robot_posi.pose.position.y - obst_posi[i].pose.position.y;
+		   obs_dist = sqrt(obs_dx * obs_dx + obs_dy * obs_dy);
+		   evaluation += w2/obs_dist;
+	   }
+	   return evaluation;
+}
+
+
+/**
+*  ?????
+*
+*/
+void SwarmControlAlgorithm::ComputeSubpositions() {
+	//please check if the coordinate is right
+	// for(int i = 1; i < poses.size(); i++) {
+	// 	// for robot #(i+1)
+	// 	poses[i].pose.position.x = poses[0].pose.position.x - 1;
+	// 	poses[i].pose.position.y = poses[0].pose.position.y + sqrt(3);		
+	// }
+
+	// for robot #2
+	target_pose[1].pose.position.x = target_pose[0].pose.position.x - 1;
+	target_pose[1].pose.position.y = target_pose[0].pose.position.y + sqrt(3);
+
+	// for robot #3
+	target_pose[2].pose.position.x = target_pose[0].pose.position.x - 3;
+	target_pose[2].pose.position.y = target_pose[0].pose.position.y + sqrt(3);
+
+	// for robot #4
+	target_pose[3].pose.position.x = target_pose[0].pose.position.x - 1;
+	target_pose[3].pose.position.y = target_pose[0].pose.position.y - sqrt(3);
+
+	// for robot #5
+	target_pose[4].pose.position.x = target_pose[0].pose.position.x - 3;
+	target_pose[4].pose.position.y = target_pose[0].pose.position.y - sqrt(3);
+
+	// for robot #6
+	target_pose[5].pose.position.x = target_pose[0].pose.position.x - 4;
+	target_pose[5].pose.position.y = target_pose[0].pose.position.y;
 }
