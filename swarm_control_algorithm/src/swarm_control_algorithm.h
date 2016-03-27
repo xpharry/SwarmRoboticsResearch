@@ -86,6 +86,7 @@ public:
 		  
     void ComputeConsumption(std::vector< std::vector<geometry_msgs::PoseStamped>  > obstacles);
     void DecisionMaker();
+	void MorkovDecision();
 	void build_point_and_go(geometry_msgs::PoseStamped start_pose, geometry_msgs::PoseStamped end_pose,
         std::vector<nav_msgs::Odometry> &vec_states);
     double ComputeEvaluation(geometry_msgs::PoseStamped target_posi,
