@@ -72,14 +72,32 @@ int main(int argc, char **argv) {
     ROS_INFO("here 7");
 
     std::vector< std::vector<nav_msgs::Odometry> > des_state;
+    int max_size = 0;
     for(int i = 0; i < robot_quantity; i++) {
         ROS_INFO("------------ robot #%d ------------", i+1);
         des_state.push_back(swarm_control_algorithm.desired_path[i]);
         std::vector<nav_msgs::Odometry> path = swarm_control_algorithm.desired_path[i];
+        if( path.size() > max_size ) max_size = path.size();
         for(int j = 0; j < path.size(); j++) {
             ROS_INFO("******* x: %f, y: %f ********", path[j].pose.pose.position.x, path[j].pose.pose.position.y);
         }
     }
+
+    std::vector< std::vector<nav_msgs::Odometry> > des_state_by_step;
+    des_state_by_step.resize(max_size);
+    for(int i = 0; i < max_size; i++) {
+        ROS_INFO("------------ path step #%d ------------", i+1);
+        des_state_by_step[i].resize(robot_quantity);
+        for(int j = 0; j < robot_quantity; j++) {
+            if( i < swarm_control_algorithm.desired_path[j].size() ) {
+                des_state_by_step[i][j] = swarm_control_algorithm.desired_path[j][i];
+            } else {
+                des_state_by_step[i][j] = des_state_by_step[i-1][j];
+            }
+            ROS_INFO("*******robot %d: x = %f, y = %f ********", j+1,
+                des_state_by_step[i][j].pose.pose.position.x, des_state_by_step[i][j].pose.pose.position.y);
+        }
+    } 
 
     ROS_INFO("swarm_control_algorithm ends here ...");
 

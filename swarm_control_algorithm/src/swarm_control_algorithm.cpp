@@ -22,11 +22,8 @@ SwarmControlAlgorithm::SwarmControlAlgorithm() {
 *
 */
 void SwarmControlAlgorithm::set_initial_position(std::vector<double> x_vec, std::vector<double> y_vec) {
-	ROS_INFO("********* set_initial_position");
 	for(int i = 0; i < robot_quantity; i++) {
-		ROS_INFO("******** i = %d", i);
 		current_pose[i] = xyPsi2PoseStamped(x_vec[i], y_vec[i], 0);
-		ROS_INFO("********* set_initial_position loop");
 	}
 }
 
@@ -36,10 +33,8 @@ void SwarmControlAlgorithm::set_initial_position(std::vector<double> x_vec, std:
 *
 */
 void SwarmControlAlgorithm::set_target_position(double x, double y, double psi) {
-	ROS_INFO("********* set_target_position");
 	// build the pose for the robot leader
 	target_pose[0] = xyPsi2PoseStamped(x, y, psi);
-	ROS_INFO("********* set_target_position mid");
 
 	// compute the poses for the remaining robots
 	ComputeSubpositions();
@@ -47,7 +42,7 @@ void SwarmControlAlgorithm::set_target_position(double x, double y, double psi) 
 	for(int i = 0; i < target_pose.size(); i++) {
 		vec_of_targets_pose[i] = target_pose[i];
 	}
-	ROS_INFO("********* set_target_position ends");
+
 }
 
 
@@ -63,7 +58,6 @@ double SwarmControlAlgorithm::convertPlanarQuat2Psi(geometry_msgs::Quaternion qu
 
 //given a heading for motion on a plane (as above), convert this to a quaternion
 geometry_msgs::Quaternion SwarmControlAlgorithm::convertPlanarPsi2Quaternion(double psi) {
-	ROS_INFO("********* convertPlanarPsi2Quaternion");
 	geometry_msgs::Quaternion quaternion;
 	quaternion.x = 0.0;
 	quaternion.y = 0.0;
@@ -75,13 +69,11 @@ geometry_msgs::Quaternion SwarmControlAlgorithm::convertPlanarPsi2Quaternion(dou
 
 //utility to fill a PoseStamped object from planar x,y,psi info
 geometry_msgs::PoseStamped SwarmControlAlgorithm::xyPsi2PoseStamped(double x, double y, double psi) {
-	ROS_INFO("********* xyPsi2PoseStamped");
 	geometry_msgs::PoseStamped poseStamped; // a pose object to populate
 	poseStamped.pose.orientation = convertPlanarPsi2Quaternion(psi); // convert from heading to corresponding quaternion
 	poseStamped.pose.position.x = x; // keep the robot on the ground!
 	poseStamped.pose.position.y = y; // keep the robot on the ground!
 	poseStamped.pose.position.z = 0.0; // keep the robot on the ground!
-	ROS_INFO("********* xyPsi2PoseStamped ends");
 	return poseStamped;
 }
 
@@ -229,16 +221,12 @@ void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::Pos
 *
 */
 void SwarmControlAlgorithm::ComputeConsumption(std::vector< std::vector<geometry_msgs::PoseStamped>  > obstacles) {
-	ROS_INFO("************ ComputeConsumption");
 	//get all target position not acoordingly	
 	for(int i = 1; i < obstacles.size(); i++) {
-		ROS_INFO("****** i = %d", i);
 		for(int j = 1; j < robot_quantity; j++) {
-			ROS_INFO("****** j = %d", j);
 			swarm_consump[i][j] = SingleConsumpt(target_pose[j], current_pose[i], obstacles[i]);
 		}		
 	}
-	ROS_INFO("************ ComputeConsumption ends");
 }
 
 
@@ -249,8 +237,6 @@ void SwarmControlAlgorithm::ComputeConsumption(std::vector< std::vector<geometry
 double SwarmControlAlgorithm::SingleConsumpt(geometry_msgs::PoseStamped target,
 	geometry_msgs::PoseStamped current,
 	std::vector<geometry_msgs::PoseStamped> obstacle) {
-
-	ROS_INFO("************ SingleConsumpt");
 
 	double target_dx = target.pose.position.x - current.pose.position.x;
 	double target_dy = target.pose.position.y - current.pose.position.y;
@@ -267,8 +253,6 @@ double SwarmControlAlgorithm::SingleConsumpt(geometry_msgs::PoseStamped target,
 	double add_consumpt;
 	double total_consumpt;
 	int num = obstacle.size();
-
-	ROS_INFO("************ SingleConsumpt mid");
 
 	for (int i = 0; i < num; i++) {
 		obst_dx = obstacle[i].pose.position.x - current.pose.position.x;
@@ -287,7 +271,6 @@ double SwarmControlAlgorithm::SingleConsumpt(geometry_msgs::PoseStamped target,
 		total_consumpt += add_consumpt;
 	}
 
-	ROS_INFO("************ SingleConsumpt ends");
 	return dist + total_consumpt + 1; // for convenience of proba
 }
 
@@ -297,7 +280,6 @@ double SwarmControlAlgorithm::SingleConsumpt(geometry_msgs::PoseStamped target,
 *
 */
 void SwarmControlAlgorithm::MorkovDecision(){
-	ROS_INFO("************ MDP DecisionMaker");
     int num2 = swarm_consump[1].size();
 	for(int i = 0; i < num2; i++){
 		swarm_consump[1][i] = 1/swarm_consump[1][i]; //reverse monotonicity
@@ -358,11 +340,9 @@ void SwarmControlAlgorithm::MorkovDecision(){
 									c_5 = c_5/norm;
 									c_6 = c_6/norm;
 
-									ROS_INFO("************ DecisionMaker 1.5");
 									C = c_2 * prob + c_3 * prob + c_4 * prob + c_5 * prob +c_6 * prob;
 
                                     if(C_best < C) {   // if not minimal, replace
-                                    	ROS_INFO("************ DecisionMaker 1.7");
 
 										vec_of_decision.clear();
 										vec_of_decision[1] = i_2 + 2;  ///index is from 0, but our target position is from 2
@@ -370,12 +350,6 @@ void SwarmControlAlgorithm::MorkovDecision(){
 										vec_of_decision[3] = i_4 + 2;
 										vec_of_decision[4] = i_5 + 2;
 										vec_of_decision[5] = i_6 + 2;
-
-										ROS_INFO("************ i_2 = %d", i_2);
-										ROS_INFO("************ i_3 = %d", i_3);
-										ROS_INFO("************ i_4 = %d", i_4);
-										ROS_INFO("************ i_5 = %d", i_5);
-										ROS_INFO("************ i_6 = %d", i_6);
 
 										target_pose[1] = vec_of_targets_pose[i_2];
 										target_pose[2] = vec_of_targets_pose[i_3];
@@ -395,7 +369,6 @@ void SwarmControlAlgorithm::MorkovDecision(){
 }
 
 void SwarmControlAlgorithm::DecisionMaker() {
-	ROS_INFO("************ DecisionMaker");
 	// normalize and change monoton
 	// double delta = max - min;
 	int num2 = swarm_consump[1].size();
@@ -436,8 +409,6 @@ void SwarmControlAlgorithm::DecisionMaker() {
     vec_of_proby.resize(6); //as clear may let core dumpt
     vec_of_proby[0] = 1;
     vec_of_decision[0] = 1;
-    
-    ROS_INFO("************ DecisionMaker 1");
 
     for(int i_2 = 0; i_2 < num2; i_2++) {
     	for(int i_3 = 0; i_3 < num3; i_3++) {
@@ -464,10 +435,8 @@ void SwarmControlAlgorithm::DecisionMaker() {
 									Entropy = -(proby_2 * log(proby_2) + proby_3 * log(proby_3) + proby_3 * log(proby_3)
 										+ proby_4 * log(proby_4) + proby_5 * log(proby_5) + proby_6 * log(proby_6));
 
-									ROS_INFO("************ DecisionMaker 1.5");
-
                                     if(Entropy < BestEntropy) {   // if not minimal, replace
-                                    	ROS_INFO("************ DecisionMaker 1.7");
+                                    	
 										BestEntropy = Entropy;
 
 										vec_of_proby[1] = proby_2;
@@ -476,28 +445,17 @@ void SwarmControlAlgorithm::DecisionMaker() {
 										vec_of_proby[4] = proby_5;
 										vec_of_proby[5] = proby_6;
 
-										vec_of_decision.clear();
-										vec_of_decision[1] = i_2 + 2;  ///index is from 0, but our target position is from 2
-										vec_of_decision[2] = i_3 + 2;
-										vec_of_decision[3] = i_4 + 2;
-										vec_of_decision[4] = i_5 + 2;
-										vec_of_decision[5] = i_6 + 2;
-
-										ROS_INFO("************ DecisionMaker 1.75");
-
-										ROS_INFO("************ i_2 = %d", i_2);
-										ROS_INFO("************ i_3 = %d", i_3);
-										ROS_INFO("************ i_4 = %d", i_4);
-										ROS_INFO("************ i_5 = %d", i_5);
-										ROS_INFO("************ i_6 = %d", i_6);
+										vec_of_decision[1] = i_2 + 1;  ///index is from 0, but our target position is from 2
+										vec_of_decision[2] = i_3 + 1;
+										vec_of_decision[3] = i_4 + 1;
+										vec_of_decision[4] = i_5 + 1;
+										vec_of_decision[5] = i_6 + 1;
 
 										target_pose[1] = vec_of_targets_pose[i_2];
 										target_pose[2] = vec_of_targets_pose[i_3];
 										target_pose[3] = vec_of_targets_pose[i_4];
 										target_pose[4] = vec_of_targets_pose[i_5];
 										target_pose[5] = vec_of_targets_pose[i_6];
-
-										ROS_INFO("************ DecisionMaker 1.8");
                                     }
                                	  }
                                }
@@ -509,16 +467,12 @@ void SwarmControlAlgorithm::DecisionMaker() {
        }
     }
 
-    ROS_INFO("************ DecisionMaker 2");
-
 	int decision_index = 0;
 	int decision_scale = vec_of_decision.size();
 	for (int i = 0; i < decision_scale; i ++) {
 		decision_index = vec_of_decision[i];
 		ROS_INFO("in order from 2 to 6, targets are: %d", decision_index);
 	}
-
-	ROS_INFO("************ DecisionMaker");
 }
 
 
