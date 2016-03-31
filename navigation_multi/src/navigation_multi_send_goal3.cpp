@@ -2,24 +2,29 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <tf/transform_datatypes.h>
+#include <string>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 using namespace std;
 
 int main(int argc, char** argv) {
 
-    if (argc < 2) {
-        ROS_ERROR("You must specify leader robot id.");
+    if (argc < 5) {
+        ROS_ERROR("You must specify parameters.");
         return -1;
     }
     char *robot_id = argv[1];
+    char *x = argv[2];
+    char *y = argv[3];
+    char *theta = argv[4];
+
     ros::init(argc, argv, "navigation_multi_send_goals");
     ros::NodeHandle nh;
 
     // Define the goal
-    double goal_x = 5.0;
-    double goal_y = 5.0;
-    double goal_theta = 45;
+    double goal_x = atof(x);
+    double goal_y = atof(y);
+    double goal_theta = atof(theta);
 
     // Create the string "robot_X/move_base"
     string move_base_str = "/robot_";
