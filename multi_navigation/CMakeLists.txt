@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   tf
+  nav_msgs
 )
 
 catkin_package()
@@ -15,11 +16,12 @@ catkin_package()
 add_executable(multi_navigation_send_goal src/multi_navigation_send_goal.cpp)
 add_executable(multi_navigation_send_goal2 src/multi_navigation_send_goal2.cpp)
 add_executable(multi_navigation_send_goal3 src/multi_navigation_send_goal3.cpp)
+add_executable(multi_navigation_send_goal_with_class src/multi_navigation_send_goal_with_class.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(multi_navigation_send_goal ${catkin_LIBRARIES})
 target_link_libraries(multi_navigation_send_goal2 ${catkin_LIBRARIES})
 target_link_libraries(multi_navigation_send_goal3 ${catkin_LIBRARIES})
-
+target_link_libraries(multi_navigation_send_goal_with_class ${catkin_LIBRARIES})
 
 
