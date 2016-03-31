@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
         return -1;
     }
     char *robot_id = argv[1];
-    ros::init(argc, argv, "navigation_multi_send_goals");
+    ros::init(argc, argv, "multi_navigation_send_goals");
     ros::NodeHandle nh;
 
     // Define the goal

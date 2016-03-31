@@ -8,7 +8,7 @@ using namespace std;
 
 int main(int argc, char** argv) {
 
-    ros::init(argc, argv, "navigation_multi_send_goals_v2");
+    ros::init(argc, argv, "multi_navigation_send_goals_v2");
     ros::NodeHandle nh;
 
     //int robot_quantity = 6;
