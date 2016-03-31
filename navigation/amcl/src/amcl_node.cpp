@@ -61,8 +61,6 @@
 #include "dynamic_reconfigure/server.h"
 #include "amcl/AMCLConfig.h"
 
-#include "collvoid_msgs/PoseArrayWeighted.h"
-
 #define NEW_UNIFORM_SAMPLING 1
 
 using namespace amcl;
@@ -214,7 +212,7 @@ class AmclNode
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
     ros::Publisher pose_pub_;
-    ros::Publisher particlecloud_pub_, particlecloud_weighted_pub_;
+    ros::Publisher particlecloud_pub_;
     ros::ServiceServer global_loc_srv_;
     ros::ServiceServer nomotion_update_srv_; //to let amcl update samples without requiring motion
     ros::ServiceServer set_map_srv_;
@@ -389,8 +387,6 @@ AmclNode::AmclNode() :
 
   pose_pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", 2, true);
   particlecloud_pub_ = nh_.advertise<geometry_msgs::PoseArray>("particlecloud", 2, true);
-
-  particlecloud_weighted_pub_ = nh_.advertise<collvoid_msgs::PoseArrayWeighted>("particlecloud_weighted", 2, true);
   global_loc_srv_ = nh_.advertiseService("global_localization", 
 					 &AmclNode::globalLocalizationCallback,
                                          this);
@@ -1110,29 +1106,6 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
 
     pf_odom_pose_ = pose;
 
-    pf_sample_set_t* set2 = pf_->sets + pf_->current_set;
-    //   pf_sample_set_t* set2 = pf_->current_set;
-
-    
-    collvoid_msgs::PoseArrayWeighted cloud_msg2;
-    cloud_msg2.header.stamp = ros::Time::now();
-    cloud_msg2.header.frame_id = global_frame_id_;
-    cloud_msg2.poses.resize(set2->sample_count);
-    cloud_msg2.weights.resize(set2->sample_count);
-
-    for(int i=0;i<set2->sample_count;i++)
-    {
-      tf::poseTFToMsg(tf::Pose(tf::createQuaternionFromYaw(set2->samples[i].pose.v[2]),
-                               tf::Vector3(set2->samples[i].pose.v[0],
-                                         set2->samples[i].pose.v[1], 0)),
-                      cloud_msg2.poses[i]);
-      
-      cloud_msg2.weights[i] = set2->samples[i].weight;
-
-    }
-    particlecloud_weighted_pub_.publish(cloud_msg2);
-
-    
     // Resample the particles
     if(!(++resample_count_ % resample_interval_))
     {
