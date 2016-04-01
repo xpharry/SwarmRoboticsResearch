@@ -4,6 +4,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <tf/transform_datatypes.h>
 #include <nav_msgs/Path.h>
+#include <boost/thread.hpp>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 using namespace std;
@@ -212,17 +213,56 @@ int main(int argc, char **argv) {
     ROS_INFO(" ");
     ROS_INFO("multi_navigation starts here ...");
 
-    for(int i = 0; i < robot_quantity; i++) {
-        MultiNavigation multi_navigation(i);
+    // vector< boost::shared_ptr<boost::thread> > thread_vec;
+    // thread_vec.resize(robot_quantity);
+    // for(int i = 0; i < robot_quantity; i++) {
+    //     MultiNavigation multi_navigation(i);
 
-        nav_msgs::Path path = multi_navigation.constructPath(des_state[i]);
-        for(int j = 0; j < path.poses.size(); j++) {
-            ROS_INFO("******* x: %f, y: %f ********", path.poses[j].pose.position.x, path.poses[j].pose.position.y);
-        }
+    //     nav_msgs::Path path = multi_navigation.constructPath(des_state[i]);
+    //     for(int j = 0; j < path.poses.size(); j++) {
+    //         ROS_INFO("******* x: %f, y: %f ********", path.poses[j].pose.position.x, path.poses[j].pose.position.y);
+    //     }
 
-        multi_navigation.run(path);       
-    }
+    //     thread_vec[i] = boost::shared_ptr<boost::thread> (new boost::thread(boost::bind(&MultiNavigation::run, &multi_navigation, path)) );  
+    // }
 
+    // for(int i = 0; i < robot_quantity; i++) {
+    //     ROS_INFO("waiting for thread ...");
+    //     thread_vec[i].get()->join();
+    //     ROS_INFO("done!");
+    // }
+
+
+        MultiNavigation multi_navigation0(0);
+        MultiNavigation multi_navigation1(1);
+        MultiNavigation multi_navigation2(2);
+        MultiNavigation multi_navigation3(3);
+        MultiNavigation multi_navigation4(4);
+        MultiNavigation multi_navigation5(5);
+
+        nav_msgs::Path path0 = multi_navigation0.constructPath(des_state[0]);
+        nav_msgs::Path path1 = multi_navigation1.constructPath(des_state[1]);
+        nav_msgs::Path path2 = multi_navigation2.constructPath(des_state[2]);
+        nav_msgs::Path path3 = multi_navigation3.constructPath(des_state[3]);
+        nav_msgs::Path path4 = multi_navigation4.constructPath(des_state[4]);
+        nav_msgs::Path path5 = multi_navigation5.constructPath(des_state[5]);
+
+
+        boost::thread thread0(boost::bind(&MultiNavigation::run, &multi_navigation0, path0));
+        boost::thread thread1(boost::bind(&MultiNavigation::run, &multi_navigation1, path1));
+        boost::thread thread2(boost::bind(&MultiNavigation::run, &multi_navigation2, path2));
+        boost::thread thread3(boost::bind(&MultiNavigation::run, &multi_navigation3, path3));
+        boost::thread thread4(boost::bind(&MultiNavigation::run, &multi_navigation4, path4));
+        boost::thread thread5(boost::bind(&MultiNavigation::run, &multi_navigation5, path5));
+
+        ROS_INFO("waiting for thread ...");
+        thread0.join();
+        thread1.join();
+        thread2.join();
+        thread3.join();
+        thread4.join();
+        thread5.join();
+        ROS_INFO("done!");
 
     return 0;
 }
