@@ -1,4 +1,4 @@
-#include "swarm_control_algorithm.h"
+#include <swarm_control_algorithm/swarm_control_algorithm.h>
 
 
 SwarmControlAlgorithm::SwarmControlAlgorithm() {

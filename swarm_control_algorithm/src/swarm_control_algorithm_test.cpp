@@ -1,4 +1,4 @@
-#include "swarm_control_algorithm.cpp"
+#include <swarm_control_algorithm/swarm_control_algorithm.h>
 
 
 int main(int argc, char **argv) {

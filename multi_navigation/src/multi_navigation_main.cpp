@@ -97,7 +97,7 @@ void MultiNavigation::run(nav_msgs::Path path) {
 
 int main(int argc, char** argv) {
 
-    ros::init(argc, argv, "multi_navigation_send_goal_with_class");
+    ros::init(argc, argv, "multi_navigation_main");
     ros::NodeHandle nh;
 
     // Define the goal

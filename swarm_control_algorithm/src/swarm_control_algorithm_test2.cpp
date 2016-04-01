@@ -1,4 +1,4 @@
-#include "swarm_control_algorithm.cpp"
+#include <swarm_control_algorithm/swarm_control_algorithm.h>
 #include <iostream>
 #include <swarm_robot_msgs/swarm_robot_poses.h>
 #include <actionlib/client/simple_action_client.h>

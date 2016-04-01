@@ -1,4 +1,4 @@
-#include "swarm_control_algorithm.cpp"
+#include <swarm_control_algorithm/swarm_control_algorithm.h>
 #include <iostream>
 
 using namespace std;
