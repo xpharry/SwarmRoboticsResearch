@@ -1,27 +1,25 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(multi_navigation)
 
-find_package(catkin REQUIRED COMPONENTS
-  actionlib
-  move_base_msgs
-  roscpp
-  rospy
-  tf
-  nav_msgs
-)
+find_package(catkin_simple REQUIRED)
 
-catkin_package()
+catkin_simple()
 
 ## Declare a C++ executable
 add_executable(multi_navigation_send_goal src/multi_navigation_send_goal.cpp)
 add_executable(multi_navigation_send_goal2 src/multi_navigation_send_goal2.cpp)
 add_executable(multi_navigation_send_goal3 src/multi_navigation_send_goal3.cpp)
 add_executable(multi_navigation_main src/multi_navigation_main.cpp)
+add_executable(external_swarm_control_algorithm_test src/swarm_control_algorithm_test.cpp)
+add_executable(multi_navigation_with_swarm_control src/multi_navigation_with_swarm_control.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(multi_navigation_send_goal ${catkin_LIBRARIES})
 target_link_libraries(multi_navigation_send_goal2 ${catkin_LIBRARIES})
 target_link_libraries(multi_navigation_send_goal3 ${catkin_LIBRARIES})
 target_link_libraries(multi_navigation_main ${catkin_LIBRARIES})
+target_link_libraries(external_swarm_control_algorithm_test swarm_control_algorithm ${catkin_LIBRARIES})
+target_link_libraries(multi_navigation_with_swarm_control swarm_control_algorithm ${catkin_LIBRARIES})
 
-
+cs_install()
+cs_export()
