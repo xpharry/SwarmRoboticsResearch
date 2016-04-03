@@ -138,17 +138,17 @@ int main(int argc, char **argv) {
     x_vec.resize(6);
     y_vec.resize(6);
     x_vec[0] = 2;   //1
-    y_vec[0] = 8; 
+    y_vec[0] = 2; 
     x_vec[1] = 2;   //2
     y_vec[1] = 4;
     x_vec[2] = 2;   //3
     y_vec[2] = 6;
-    x_vec[3] = 5;   //4
-    y_vec[3] = 7;
+    x_vec[3] = 4;   //4
+    y_vec[3] = 2;
     x_vec[4] = 6;   //5
     y_vec[4] = 2;
     x_vec[5] = 4;   //6
-    y_vec[5] = 12;
+    y_vec[5] = 4;
 
     ROS_INFO("here 2");
         
