@@ -1,0 +1,38 @@
+<launch>
+  <!-- BEGIN ROBOT 0 -->
+  <group ns="robot_0">
+    <node pkg="multi_navigation" type="multi_navigation_with_swarm_robot1" respawn="false" name="multi_navigation_with_swarm_robot1" output="screen"/>
+  </group>
+  <!-- END ROBOT 0 -->
+
+  <!-- BEGIN ROBOT 1 -->
+  <group ns="robot_1">
+    <node pkg="multi_navigation" type="multi_navigation_with_swarm_robot2" respawn="false" name="multi_navigation_with_swarm_robot2" output="screen"/>
+  </group>
+  <!-- END ROBOT 1 -->
+
+  <!-- BEGIN ROBOT 2 -->
+  <group ns="robot_2">
+    <node pkg="multi_navigation" type="multi_navigation_with_swarm_robot3" respawn="false" name="multi_navigation_with_swarm_robot3" output="screen"/>
+  </group>
+  <!-- END ROBOT 2 -->
+
+  <!-- BEGIN ROBOT 3 -->
+  <group ns="robot_3">
+    <node pkg="multi_navigation" type="multi_navigation_with_swarm_robot4" respawn="false" name="multi_navigation_with_swarm_robot4" output="screen"/>
+  </group>
+  <!-- END ROBOT 3 -->
+
+  <!-- BEGIN ROBOT 4 -->
+  <group ns="robot_4">
+    <node pkg="multi_navigation" type="multi_navigation_with_swarm_robot5" respawn="false" name="multi_navigation_with_swarm_robot5" output="screen"/>
+  </group>
+  <!-- END ROBOT 4 -->
+
+  <!-- BEGIN ROBOT 5 -->
+  <group ns="robot_5">
+    <node pkg="multi_navigation" type="multi_navigation_with_swarm_robot6" respawn="false" name="multi_navigation_with_swarm_robot6" output="screen"/>
+  </group>
+  <!-- END ROBOT 5 -->
+
+</launch>

@@ -14,6 +14,13 @@ add_executable(external_swarm_control_algorithm_test src/swarm_control_algorithm
 add_executable(multi_navigation_with_swarm_control1 src/multi_navigation_with_swarm_control1.cpp)
 add_executable(multi_navigation_with_swarm_control2 src/multi_navigation_with_swarm_control2.cpp)
 
+add_executable(multi_navigation_with_swarm_robot1 src/multi_navigation_with_swarm_robot1.cpp)
+add_executable(multi_navigation_with_swarm_robot2 src/multi_navigation_with_swarm_robot2.cpp)
+add_executable(multi_navigation_with_swarm_robot3 src/multi_navigation_with_swarm_robot3.cpp)
+add_executable(multi_navigation_with_swarm_robot4 src/multi_navigation_with_swarm_robot4.cpp)
+add_executable(multi_navigation_with_swarm_robot5 src/multi_navigation_with_swarm_robot5.cpp)
+add_executable(multi_navigation_with_swarm_robot6 src/multi_navigation_with_swarm_robot6.cpp)
+
 ## Specify libraries to link a library or executable target against
 target_link_libraries(multi_navigation_send_goal ${catkin_LIBRARIES})
 target_link_libraries(multi_navigation_send_goal2 ${catkin_LIBRARIES})
@@ -22,6 +29,13 @@ target_link_libraries(multi_navigation_main ${catkin_LIBRARIES})
 target_link_libraries(external_swarm_control_algorithm_test swarm_control_algorithm ${catkin_LIBRARIES})
 target_link_libraries(multi_navigation_with_swarm_control1 swarm_control_algorithm ${catkin_LIBRARIES})
 target_link_libraries(multi_navigation_with_swarm_control2 swarm_control_algorithm ${catkin_LIBRARIES})
+
+target_link_libraries(multi_navigation_with_swarm_robot1 swarm_control_algorithm ${catkin_LIBRARIES})
+target_link_libraries(multi_navigation_with_swarm_robot2 swarm_control_algorithm ${catkin_LIBRARIES})
+target_link_libraries(multi_navigation_with_swarm_robot3 swarm_control_algorithm ${catkin_LIBRARIES})
+target_link_libraries(multi_navigation_with_swarm_robot4 swarm_control_algorithm ${catkin_LIBRARIES})
+target_link_libraries(multi_navigation_with_swarm_robot5 swarm_control_algorithm ${catkin_LIBRARIES})
+target_link_libraries(multi_navigation_with_swarm_robot6 swarm_control_algorithm ${catkin_LIBRARIES})
 
 cs_install()
 cs_export()

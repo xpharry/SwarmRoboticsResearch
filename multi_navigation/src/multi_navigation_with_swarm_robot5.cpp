@@ -138,16 +138,16 @@ int main(int argc, char **argv) {
     x_vec.resize(6);
     y_vec.resize(6);
     x_vec[0] = 2;   //1
-    y_vec[0] = 8; 
+    y_vec[0] = 1; 
     x_vec[1] = 2;   //2
     y_vec[1] = 4;
     x_vec[2] = 2;   //3
     y_vec[2] = 6;
-    x_vec[3] = 5;   //4
-    y_vec[3] = 7;
-    x_vec[4] = 6;   //5
-    y_vec[4] = 2;
-    x_vec[5] = 4;   //6
+    x_vec[3] = 2;   //4
+    y_vec[3] = 8;
+    x_vec[4] = 2;   //5
+    y_vec[4] = 10;
+    x_vec[5] = 2;   //6
     y_vec[5] = 12;
 
     ROS_INFO("here 2");
@@ -246,47 +246,47 @@ int main(int argc, char **argv) {
     temp.pose.position.y  = 21.801 ; 
     obst_posi.push_back(temp);
 ///////////////////////////////////////////
-    // temp.pose.position.x  = 20.269 ;
-    // temp.pose.position.y  = 10.001; 
-    // obst_posi.push_back(temp);
+    temp.pose.position.x  = 20.269 ;
+    temp.pose.position.y  = 10.001; 
+    obst_posi.push_back(temp);
 
-    // temp.pose.position.x  = 18.669 ;
-    // temp.pose.position.y  = 10.501; 
-    // obst_posi.push_back(temp);
+    temp.pose.position.x  = 18.669 ;
+    temp.pose.position.y  = 10.501; 
+    obst_posi.push_back(temp);
 
-    // temp.pose.position.x  = 19.000 ;
-    // temp.pose.position.y  = 10.001; 
-    // obst_posi.push_back(temp);
+    temp.pose.position.x  = 19.000 ;
+    temp.pose.position.y  = 10.001; 
+    obst_posi.push_back(temp);
 
-    // temp.pose.position.x  = 20.000 ;
-    // temp.pose.position.y  = 10.501 ; 
-    // obst_posi.push_back(temp);
+    temp.pose.position.x  = 20.000 ;
+    temp.pose.position.y  = 10.501 ; 
+    obst_posi.push_back(temp);
 
-    // temp.pose.position.x  = 19.669 ;
-    // temp.pose.position.y  = 10.801; 
-    // obst_posi.push_back(temp);
+    temp.pose.position.x  = 19.669 ;
+    temp.pose.position.y  = 10.801; 
+    obst_posi.push_back(temp);
 
-    // temp.pose.position.x  = 21.269 ;
-    // temp.pose.position.y  = 10.001; 
-    // obst_posi.push_back(temp);
-
-
-    // temp.pose.position.x  = 21.269 ;
-    // temp.pose.position.y  = 9.001; 
-    // obst_posi.push_back(temp);
+    temp.pose.position.x  = 21.269 ;
+    temp.pose.position.y  = 10.001; 
+    obst_posi.push_back(temp);
 
 
-    // temp.pose.position.x  = 20.269 ;
-    // temp.pose.position.y  = 11.001; 
-    // obst_posi.push_back(temp);
+    temp.pose.position.x  = 21.269 ;
+    temp.pose.position.y  = 9.001; 
+    obst_posi.push_back(temp);
 
-    // temp.pose.position.x  =  19.569;
-    // temp.pose.position.y  =  10.801; 
-    // obst_posi.push_back(temp);
 
-    // temp.pose.position.x  =  18.000 ;
-    // temp.pose.position.y  =  10.801 ; 
-    // obst_posi.push_back(temp);  
+    temp.pose.position.x  = 20.269 ;
+    temp.pose.position.y  = 11.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  =  19.569;
+    temp.pose.position.y  =  10.801; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  =  18.000 ;
+    temp.pose.position.y  =  10.801 ; 
+    obst_posi.push_back(temp);  
 
     std::vector< std::vector<geometry_msgs::PoseStamped> > obstacles;
     obstacles.resize(6);
@@ -297,7 +297,7 @@ int main(int argc, char **argv) {
     swarm_control_algorithm.ComputeConsumption(obstacles);
 
     //swarm_control_algorithm.DecisionMaker();   //give corresponding targets
-    swarm_control_algorithm.MarkovDecision();
+     swarm_control_algorithm.MarkovDecision();
     // swarm
     swarm_control_algorithm.swarm_obstacles_state(obst_posi);
 
@@ -333,12 +333,11 @@ int main(int argc, char **argv) {
 
     // ********************************************************************************************************************************
 
-    ROS_INFO(" ");
-    ROS_INFO("multi_navigation starts here ...");
+    // ROS_INFO(" ");
+    // ROS_INFO("multi_navigation starts here ...");
 
-    // vector< boost::shared_ptr<boost::thread> > thread_vec;
-    // thread_vec.resize(robot_quantity);
-    // for(int i = 0; i < robot_quantity; i++) {
+    // int i = 4;
+    // // for(int i = 0; i < robot_quantity; i++) {
     //     MultiNavigation multi_navigation(i);
 
     //     nav_msgs::Path path = multi_navigation.constructPath(des_state[i]);
@@ -346,47 +345,17 @@ int main(int argc, char **argv) {
     //         ROS_INFO("******* x: %f, y: %f ********", path.poses[j].pose.position.x, path.poses[j].pose.position.y);
     //     }
 
-    //     thread_vec[i] = boost::shared_ptr<boost::thread> (new boost::thread(boost::bind(&MultiNavigation::run, &multi_navigation, path)) );  
-    // }
+    //     multi_navigation.run(path);  
+    // // }
 
-    // for(int i = 0; i < robot_quantity; i++) {
-    //     ROS_INFO("waiting for thread ...");
-    //     thread_vec[i].get()->join();
-    //     ROS_INFO("done!");
-    // }
+    MultiNavigation multi_navigation(4);
+    nav_msgs::Path path = multi_navigation.constructPath(des_state[4]);
+    boost::thread thread(boost::bind(&MultiNavigation::run, &multi_navigation, path));
 
-
-        MultiNavigation multi_navigation0(0);
-        MultiNavigation multi_navigation1(1);
-        MultiNavigation multi_navigation2(2);
-        MultiNavigation multi_navigation3(3);
-        MultiNavigation multi_navigation4(4);
-        MultiNavigation multi_navigation5(5);
-
-        nav_msgs::Path path0 = multi_navigation0.constructPath(des_state[0]);
-        nav_msgs::Path path1 = multi_navigation1.constructPath(des_state[1]);
-        nav_msgs::Path path2 = multi_navigation2.constructPath(des_state[2]);
-        nav_msgs::Path path3 = multi_navigation3.constructPath(des_state[3]);
-        nav_msgs::Path path4 = multi_navigation4.constructPath(des_state[4]);
-        nav_msgs::Path path5 = multi_navigation5.constructPath(des_state[5]);
-
-        boost::thread thread0(boost::bind(&MultiNavigation::run, &multi_navigation0, path0));
-        boost::thread thread1(boost::bind(&MultiNavigation::run, &multi_navigation1, path1));
-        boost::thread thread2(boost::bind(&MultiNavigation::run, &multi_navigation2, path2));
-        boost::thread thread3(boost::bind(&MultiNavigation::run, &multi_navigation3, path3));
-        boost::thread thread4(boost::bind(&MultiNavigation::run, &multi_navigation4, path4));
-        boost::thread thread5(boost::bind(&MultiNavigation::run, &multi_navigation5, path5));
-
-
-        ROS_INFO("waiting for thread ...");
-        thread0.join();     
-        thread1.join();      
-        thread2.join();
-        thread3.join();
-        thread4.join();
-        thread5.join();
-        // ros::Duration(0.5).sleep();
-        ROS_INFO("done!");
+    ROS_INFO("waiting for thread ...");
+    thread.join();     
+    // ros::Duration(0.5).sleep();
+    ROS_INFO("done!");
 
     return 0;
 }

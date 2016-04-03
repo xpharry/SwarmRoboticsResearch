@@ -99,8 +99,8 @@ void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::Pos
 		std::vector<nav_msgs::Odometry> &vec_of_states) {
 
 	int Num = 150;
-	double c1 = 0.5;
-	double c2 = 0.5;
+	double c1 = 0.7;
+	double c2 = 0.7;
 	int Miter = 20;
 	double w = 0.75;
 
@@ -206,7 +206,7 @@ void SwarmControlAlgorithm::swarm_obstacles_state(std::vector<geometry_msgs::Pos
 		dx = global_best.pose.position.x - target_posi.pose.position.x;
 		dy = global_best.pose.position.y - target_posi.pose.position.y;
 		dist = sqrt(dx *dx + dy*dy);
-		if( dist > 1){
+		if( dist > 3){
 			des_odom.pose.pose.position = global_best.pose.position;
 			vec_of_states.push_back(des_odom);
 		}  ///careful 
@@ -279,177 +279,64 @@ double SwarmControlAlgorithm::SingleConsumpt(geometry_msgs::PoseStamped target,
 *  ?????
 *
 */
-void SwarmControlAlgorithm::MorkovDecision(){
+void SwarmControlAlgorithm::MarkovDecision() {
+
     int num2 = swarm_consump[1].size();
-	for(int i = 0; i < num2; i++){
+	for(int i = 1; i <num2; i++){
 		swarm_consump[1][i] = 1/swarm_consump[1][i]; //reverse monotonicity
 	}
 
 	int num3 = swarm_consump[2].size();
-	for(int i = 0; i < num3; i++){
+	for(int i = 1; i <num3; i++){
 		swarm_consump[2][i] = 1/swarm_consump[2][i]; //reverse monotonicity
 	}
 
 	int num4 = swarm_consump[3].size();
-	for(int i = 0; i < num4; i++){
+	for(int i = 1; i <num4; i++){
 		swarm_consump[3][i] = 1/swarm_consump[3][i]; //reverse monotonicity		
 	}
 
 	int num5 = swarm_consump[4].size();
-	for(int i = 0; i < num5; i++){
+	for(int i = 1; i <num5; i++){
 		swarm_consump[4][i] = 1/swarm_consump[4][i]; //reverse monotonicity		
 	}	
 
 	int num6 = swarm_consump[5].size();
-	for(int i = 0; i < num6; i++){
+	for(int i = 1; i <num6; i++){
 		swarm_consump[5][i] = 1/swarm_consump[5][i]; //reverse monotonicity		
 	}	
 	
 	double C_best = 0.0;
 	double C;
-	double prob = 1/5;
-    double norm;
-    double c_2;
-    double c_3;
-    double c_4;
-    double c_5;
-    double c_6;
+	double post_prob;
+    double c = 100.0;
 	
     vec_of_decision[0] = 1;
 
-    for(int i_2 = 0; i_2 < num2; i_2++) {
-    	for(int i_3 = 0; i_3 < num3; i_3++) {
+    for(int i_2 = 1; i_2 <num2; i_2++) {
+    	for(int i_3 = 1; i_3 <num3; i_3++) {
             if(i_2 != i_3){
-                for(int i_4 = 0; i_4 < num4; i_4++) {
+                for(int i_4 = 1; i_4 <num4; i_4++) {
                     if(i_4 != i_3 && i_4 != i_2){
-                        for(int i_5 = 0; i_5 < num5; i_5++){
+                        for(int i_5 = 1; i_5 <num5; i_5++){
                             if(i_5 != i_4 && i_5 != i_3 && i_5 != i_2) {
-                               for(int i_6 = 0; i_6 < num6; i_6++){
+                               for(int i_6 = 1; i_6 <num6; i_6++){
                                	  if(i_6 != i_5 && i_6 != i_4 && i_6 != i_3 && i_6 != i_2) {
 									//normalize
-									c_2 = 1/swarm_consump[1][i_2];
-								    c_3 = 1/swarm_consump[2][i_3];
-									c_4 = 1/swarm_consump[3][i_4];
-									c_5 = 1/swarm_consump[4][i_5];
-									c_6 = 1/swarm_consump[5][i_6];
 									
-									norm = sqrt(c_2 * c_2 + c_3 * c_3 +c_4 * c_4 +c_5 * c_5 +c_6 * c_6);
-									c_2 = c_2/norm;
-									c_3 = c_3/norm;
-									c_4 = c_4/norm;
-									c_5 = c_5/norm;
-									c_6 = c_6/norm;
+                                    post_prob = swarm_consump[1][i_2] * swarm_consump[2][i_3] *swarm_consump[3][i_4] *swarm_consump[4][i_5] *swarm_consump[5][i_6];
+																		
+									C = c * post_prob;
 
-									C = c_2 * prob + c_3 * prob + c_4 * prob + c_5 * prob +c_6 * prob;
+                                    if(C_best < C) {   // if not maxmum, replace                                    	
 
-                                    if(C_best < C) {   // if not minimal, replace
-
-										vec_of_decision.clear();
-										vec_of_decision[1] = i_2 + 2;  ///index is from 0, but our target position is from 2
-										vec_of_decision[2] = i_3 + 2;
-										vec_of_decision[3] = i_4 + 2;
-										vec_of_decision[4] = i_5 + 2;
-										vec_of_decision[5] = i_6 + 2;
-
-										target_pose[1] = vec_of_targets_pose[i_2];
-										target_pose[2] = vec_of_targets_pose[i_3];
-										target_pose[3] = vec_of_targets_pose[i_4];
-										target_pose[4] = vec_of_targets_pose[i_5];
-										target_pose[5] = vec_of_targets_pose[i_6];
-                                    }
-                               	  }
-                               }
-                            }
-                        }
-                    }
-                }
-            }
-       }
-    }	
-}
-
-void SwarmControlAlgorithm::DecisionMaker() {
-	// normalize and change monoton
-	// double delta = max - min;
-	int num2 = swarm_consump[1].size();
-	for(int i = 0; i < num2; i++){
-		swarm_consump[1][i] = 1/swarm_consump[1][i]; //reverse monotonicity
-	}
-
-	int num3 = swarm_consump[2].size();
-	for(int i = 0; i < num3; i++){
-		swarm_consump[2][i] = 1/swarm_consump[2][i]; //reverse monotonicity
-	}
-
-	int num4 = swarm_consump[3].size();
-	for(int i = 0; i < num4; i++){
-		swarm_consump[3][i] = 1/swarm_consump[3][i]; //reverse monotonicity		
-	}
-
-	int num5 = swarm_consump[4].size();
-	for(int i = 0; i < num5; i++){
-		swarm_consump[4][i] = 1/swarm_consump[4][i]; //reverse monotonicity		
-	}	
-
-	int num6 = swarm_consump[5].size();
-	for(int i = 0; i < num6; i++){
-		swarm_consump[5][i] = 1/swarm_consump[5][i]; //reverse monotonicity		
-	}	
- 
-
-    double norm;
-    double proby_2;
-    double proby_3;
-    double proby_4;
-    double proby_5;
-    double proby_6;
-    double Entropy;
-    double BestEntropy = 1000;
-    std::vector<double> vec_of_proby;
-    vec_of_proby.resize(6); //as clear may let core dumpt
-    vec_of_proby[0] = 1;
-    vec_of_decision[0] = 1;
-
-    for(int i_2 = 0; i_2 < num2; i_2++) {
-    	for(int i_3 = 0; i_3 < num3; i_3++) {
-            if(i_2 != i_3){
-                for(int i_4 = 0; i_4 < num4; i_4++) {
-                    if(i_4 != i_3 && i_4 != i_2){
-                        for(int i_5 = 0; i_5 < num5; i_5++){
-                            if(i_5 != i_4 && i_5 != i_3 && i_5 != i_2) {
-                               for(int i_6 = 0; i_6 < num6; i_6++){
-                               	  if(i_6 != i_5 && i_6 != i_4 && i_6 != i_3 && i_6 != i_2) {
-									//normalize
-									proby_2 = 1/swarm_consump[1][i_2];
-									proby_3 = 1/swarm_consump[2][i_3];
-									proby_4 = 1/swarm_consump[3][i_4];
-									proby_5 = 1/swarm_consump[4][i_5];
-									proby_6 = 1/swarm_consump[5][i_6];
-									
-									norm = sqrt(proby_2 * proby_2 + proby_3 * proby_3 +proby_4 * proby_4 +proby_5 * proby_5 +proby_6 * proby_6);
-									proby_2 = proby_2/norm;
-									proby_3 = proby_3/norm;
-									proby_4 = proby_4/norm;
-									proby_5 = proby_5/norm;
-									proby_6 = proby_6/norm;
-									Entropy = -(proby_2 * log(proby_2) + proby_3 * log(proby_3) + proby_3 * log(proby_3)
-										+ proby_4 * log(proby_4) + proby_5 * log(proby_5) + proby_6 * log(proby_6));
-
-                                    if(Entropy < BestEntropy) {   // if not minimal, replace
-                                    	
-										BestEntropy = Entropy;
-
-										vec_of_proby[1] = proby_2;
-										vec_of_proby[2] = proby_3;
-										vec_of_proby[3] = proby_4;
-										vec_of_proby[4] = proby_5;
-										vec_of_proby[5] = proby_6;
-
-										vec_of_decision[1] = i_2 + 1;  ///index is from 0, but our target position is from 2
-										vec_of_decision[2] = i_3 + 1;
-										vec_of_decision[3] = i_4 + 1;
-										vec_of_decision[4] = i_5 + 1;
-										vec_of_decision[5] = i_6 + 1;
+                                        C_best = C;
+                                        
+										vec_of_decision[1] = i_2+1;  ///index is from 0, but our target position is from 2
+										vec_of_decision[2] = i_3+1;
+										vec_of_decision[3] = i_4+1;
+										vec_of_decision[4] = i_5+1;
+										vec_of_decision[5] = i_6+1;
 
 										target_pose[1] = vec_of_targets_pose[i_2];
 										target_pose[2] = vec_of_targets_pose[i_3];
@@ -467,12 +354,131 @@ void SwarmControlAlgorithm::DecisionMaker() {
        }
     }
 
+    int decision_index = 0;
+	int decision_scale = vec_of_decision.size();
+	ROS_INFO("**** decision_scale = %d", decision_scale);
+	for (int i = 0; i < decision_scale; i ++) {
+		decision_index = vec_of_decision[i];
+		ROS_INFO("in order from 2 to 6, targets are: %d", decision_index);
+	}	
+}
+
+void SwarmControlAlgorithm::DecisionMaker() {
+	
+	// normalize and change monoton
+	// double delta = max - min;
+	int num2 = swarm_consump[1].size();
+	for(int i = 1; i <num2; i++){
+		swarm_consump[1][i] = 1/swarm_consump[1][i]; //reverse monotonicity
+	}
+
+	int num3 = swarm_consump[2].size();
+	for(int i = 1; i < num3; i++){
+		swarm_consump[2][i] = 1/swarm_consump[2][i]; //reverse monotonicity
+	}
+
+	int num4 = swarm_consump[3].size();
+	for(int i = 1; i <num4; i++){
+		swarm_consump[3][i] = 1/swarm_consump[3][i]; //reverse monotonicity		
+	}
+
+	int num5 = swarm_consump[4].size();
+	for(int i = 1; i <num5; i++){
+		swarm_consump[4][i] = 1/swarm_consump[4][i]; //reverse monotonicity		
+	}	
+
+	int num6 = swarm_consump[5].size();
+	for(int i = 1; i < num6; i++){
+		swarm_consump[5][i] = 1/swarm_consump[5][i]; //reverse monotonicity		
+	}	
+
+
+
+    double norm;
+    double proby_2;
+    double proby_3;
+    double proby_4;
+    double proby_5;
+    double proby_6;
+    double Entropy;
+    double BestEntropy = 1000;
+    std::vector<double> vec_of_proby;
+    vec_of_proby.resize(6); //as clear may let core dumpt
+    vec_of_proby[0] = 1;
+    vec_of_decision[0] = 1;
+    
+    for(int i_2 = 1; i_2 <num2; i_2++) {
+    	for(int i_3 = 1; i_3 < num3; i_3++) {
+            if(i_2 != i_3){
+                for(int i_4 = 1; i_4 < num4; i_4++) {
+                    if(i_4 != i_3 && i_4 != i_2){
+                        for(int i_5 = 1; i_5 < num5; i_5++){
+                            if(i_5 != i_4 && i_5 != i_3 && i_5 != i_2) {
+                               for(int i_6 = 1; i_6 < num6; i_6++){
+                               	  if(i_6 != i_5 && i_6 != i_4 && i_6 != i_3 && i_6 != i_2) {
+                 
+
+									//normalize
+									proby_2 = swarm_consump[1][i_2];
+									proby_3 = swarm_consump[2][i_3];
+									proby_4 = swarm_consump[3][i_4];
+									proby_5 = swarm_consump[4][i_5];
+									proby_6 = swarm_consump[5][i_6];
+									
+									norm = proby_2+ proby_3 +proby_4 +proby_5 +proby_6;
+									proby_2 = proby_2/norm;
+									proby_3 = proby_3/norm;
+									proby_4 = proby_4/norm;
+									proby_5 = proby_5/norm;
+									proby_6 = proby_6/norm;
+									Entropy = -(proby_2 * log(proby_2) + proby_3 * log(proby_3) + proby_3 * log(proby_3)
+										+ proby_4 * log(proby_4) + proby_5 * log(proby_5) + proby_6 * log(proby_6));
+
+
+                                    if(Entropy < BestEntropy) {   // if not minimal, replace
+                                    	
+										BestEntropy = Entropy;
+		
+										vec_of_proby[1] = proby_2;
+										vec_of_proby[2] = proby_3;
+										vec_of_proby[3] = proby_4;
+										vec_of_proby[4] = proby_5;
+										vec_of_proby[5] = proby_6;
+	
+										vec_of_decision[1] = i_2+1;  
+										vec_of_decision[2] = i_3+1;
+										vec_of_decision[3] = i_4+1;
+										vec_of_decision[4] = i_5+1;
+										vec_of_decision[5] = i_6+1;
+
+										target_pose[1] = vec_of_targets_pose[i_2];  
+										target_pose[2] = vec_of_targets_pose[i_3];	
+										target_pose[3] = vec_of_targets_pose[i_4];	
+										target_pose[4] = vec_of_targets_pose[i_5];	
+										target_pose[5] = vec_of_targets_pose[i_6];	
+                                    }
+
+                               	  }
+                               }
+                            }
+                        }
+                    }
+                }
+            }
+       }
+    }
+
+
+
 	int decision_index = 0;
 	int decision_scale = vec_of_decision.size();
+	ROS_INFO("**** decision_scale = %d", decision_scale);
 	for (int i = 0; i < decision_scale; i ++) {
 		decision_index = vec_of_decision[i];
 		ROS_INFO("in order from 2 to 6, targets are: %d", decision_index);
 	}
+
+	
 }
 
 
@@ -481,8 +487,8 @@ void SwarmControlAlgorithm::DecisionMaker() {
 *
 */
 double SwarmControlAlgorithm::ComputeEvaluation(geometry_msgs::PoseStamped target_posi, std::vector<geometry_msgs::PoseStamped> obst_posi, geometry_msgs::PoseStamped robot_posi) {
-	   double w1 = 1000;
-	   double w2 = 800;
+	   double w1 = 100;
+	   double w2 = 50;
 
 	   double tar_dx = robot_posi.pose.position.x - target_posi.pose.position.x;
 	   double tar_dy = robot_posi.pose.position.y - target_posi.pose.position.y;
@@ -517,22 +523,22 @@ void SwarmControlAlgorithm::ComputeSubpositions() {
 	// }
 
 	// for robot #2
-	target_pose[1].pose.position.x = target_pose[0].pose.position.x - 1;
-	target_pose[1].pose.position.y = target_pose[0].pose.position.y + sqrt(3);
+	target_pose[1].pose.position.x = target_pose[0].pose.position.x - 2;
+	target_pose[1].pose.position.y = target_pose[0].pose.position.y + 2*sqrt(3);
 
 	// for robot #3
-	target_pose[2].pose.position.x = target_pose[0].pose.position.x - 3;
-	target_pose[2].pose.position.y = target_pose[0].pose.position.y + sqrt(3);
+	target_pose[2].pose.position.x = target_pose[0].pose.position.x - 6;
+	target_pose[2].pose.position.y = target_pose[0].pose.position.y + 2*sqrt(3);
 
 	// for robot #4
-	target_pose[3].pose.position.x = target_pose[0].pose.position.x - 1;
-	target_pose[3].pose.position.y = target_pose[0].pose.position.y - sqrt(3);
+	target_pose[3].pose.position.x = target_pose[0].pose.position.x - 2;
+	target_pose[3].pose.position.y = target_pose[0].pose.position.y - 2*sqrt(3);
 
 	// for robot #5
-	target_pose[4].pose.position.x = target_pose[0].pose.position.x - 3;
-	target_pose[4].pose.position.y = target_pose[0].pose.position.y - sqrt(3);
+	target_pose[4].pose.position.x = target_pose[0].pose.position.x - 6;
+	target_pose[4].pose.position.y = target_pose[0].pose.position.y - 2*sqrt(3);
 
 	// for robot #6
-	target_pose[5].pose.position.x = target_pose[0].pose.position.x - 4;
+	target_pose[5].pose.position.x = target_pose[0].pose.position.x - 8;
 	target_pose[5].pose.position.y = target_pose[0].pose.position.y;
 }

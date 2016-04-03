@@ -1,6 +1,6 @@
 define block model
 (
-  size [0.5 0.5 0.5]
+  size [0.2 0.2 0.2]
   gui_nose 0
 )
 
@@ -18,7 +18,7 @@ define topurg ranger
 
 define pr2 position
 (
-  size [0.500 0.500 0.250]
+  size [0.300 0.300 0.250]
   origin [-0.050 0.000 0.000 0.000]
   gui_nose 1
   drive "omni"
@@ -70,10 +70,42 @@ floorplan
 #pr2( pose [ -21.670 47.120 0 28.166 ] name "pr2_0" color "blue")
 #pr2( pose [ -21.670 48.120 0 28.166 ] name "pr2_1" color "green")
 #block( pose [ -24.269 48.001 0 180.000 ] color "red")
-pr2( pose [ 2.000 2.000 0.000 45.000 ] name "pr2_0" color "blue")
-pr2( pose [ 2.000 4.000 0.000 45.000 ] name "pr2_1" color "green")
-pr2( pose [ 2.000 6.000 0.000 45.000 ] name "pr2_2" color "pink")
-pr2( pose [ 2.000 8.000 0.000 45.000 ] name "pr2_3" color "orange")
-pr2( pose [ 2.000 10.000 0.000 45.000 ] name "pr2_4" color "red")
-pr2( pose [ 2.000 12.000 0.000 45.000 ] name "pr2_5" color "purple")
+pr2( pose [ 2.000 8.000 0.000 30.000 ] name "pr2_0" color "blue")
+pr2( pose [ 2.000 4.000 0.000 30.000 ] name "pr2_1" color "green")
+pr2( pose [ 2.000 6.000 0.000 30.000 ] name "pr2_2" color "pink")
+pr2( pose [ 4.000 7.000 0.000 30.000 ] name "pr2_3" color "orange")
+pr2( pose [ 6.000 2.000 0.000 30.000 ] name "pr2_4" color "red")
+pr2( pose [ 4.000 12.000 0.000 30.000 ] name "pr2_5" color "purple")
 
+block( pose [ 10.269 10.001 0 180.000 ] color "black")
+block( pose [ 10.669 9.501 0 180.000 ] color "black")
+block( pose [ 10.000 8.001 0 180.000 ] color "black")
+block( pose [ 11.000 10.001 0 180.000 ] color "black")
+block( pose [ 10.669 9.801 0 180.000 ] color "black")
+block( pose [ 12.269 9.001 0 180.000 ] color "black")
+block( pose [ 11.269 9.001 0 180.000 ] color "black")
+block( pose [ 10.269 11.001 0 180.000 ] color "black")
+block( pose [ 9.569 10.001 0 180.000 ] color "black")
+block( pose [ 9.000 9.801 0 180.000 ] color "black")
+
+block( pose [ 10.269 20.001 0 180.000 ] color "black")
+block( pose [ 10.669 19.501 0 180.000 ] color "black")
+block( pose [ 10.000 22.001 0 180.000 ] color "black")
+block( pose [ 11.000 21.001 0 180.000 ] color "black")
+block( pose [ 10.669 20.801 0 180.000 ] color "black")
+block( pose [ 12.269 19.001 0 180.000 ] color "black")
+block( pose [ 11.269 20.001 0 180.000 ] color "black")
+block( pose [ 10.269 20.501 0 180.000 ] color "black")
+block( pose [ 9.569 20.001 0 180.000 ] color "black")
+block( pose [ 9.000 21.801 0 180.000 ] color "black")
+
+#block( pose [ 20.269 10.001 0 180.000 ] color "black")
+#block( pose [ 18.669 10.501 0 180.000 ] color "black")
+#block( pose [ 19.000 10.001 0 180.000 ] color "black")
+#block( pose [ 20.000 10.501 0 180.000 ] color "black")
+#block( pose [ 19.669 10.801 0 180.000 ] color "black")
+#block( pose [ 21.269 10.001 0 180.000 ] color "black")
+#block( pose [ 21.269 9.001 0 180.000 ] color "black")
+#block( pose [ 20.269 11.001 0 180.000 ] color "black")
+#block( pose [ 19.569 10.801 0 180.000 ] color "black")
+#block( pose [ 18.000 10.801 0 180.000 ] color "black")
