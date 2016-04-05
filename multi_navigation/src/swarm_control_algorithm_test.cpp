@@ -20,34 +20,157 @@ int main(int argc, char **argv) {
     std::vector<double> y_vec;
     x_vec.resize(6);
     y_vec.resize(6);
-    x_vec[0] = 0;   //1
-    y_vec[0] = 0; 
-    x_vec[1] = 1;   //2
-    y_vec[1] = 0;
+    x_vec[0] = 2;   //1
+    y_vec[0] = 2; 
+    x_vec[1] = 2;   //2
+    y_vec[1] = 4;
     x_vec[2] = 2;   //3
-    y_vec[2] = 0;
-    x_vec[3] = 0;   //4
-    y_vec[3] = 5;
-    x_vec[4] = 2;   //5
-    y_vec[4] = 5;
-    x_vec[5] = 0;   //6
+    y_vec[2] = 6;
+    x_vec[3] = 4;   //4
+    y_vec[3] = 2;
+    x_vec[4] = 6;   //5
+    y_vec[4] = 2;
+    x_vec[5] = 4;   //6
     y_vec[5] = 4;
 
     ROS_INFO("here 2");
         
     swarm_control_algorithm.set_initial_position(x_vec, y_vec);
 
-    swarm_control_algorithm.set_target_position(10.0, 10.0, 0.0);
+    swarm_control_algorithm.set_target_position(30.0, 30.0, 0.0);
 
     ROS_INFO("here 3");
 
     // obstacle positions
     geometry_msgs::PoseStamped temp;
-    temp.pose.position.x = 0;
-    temp.pose.position.y = 0;
+    temp.pose.position.x  = 10.269 ;
+    temp.pose.position.y  =  10.001;
 
     std::vector<geometry_msgs::PoseStamped> obst_posi;
     obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 10.669 ;
+    temp.pose.position.y  =  9.501; 
+    obst_posi.push_back(temp);
+
+        temp.pose.position.x  = 10.000;
+    temp.pose.position.y  =  8.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 11.000;
+    temp.pose.position.y  = 10.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 10.669 ;
+    temp.pose.position.y  = 9.801  ; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 12.269;
+    temp.pose.position.y  =  9.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 11.269 ;
+    temp.pose.position.y  = 9.001; 
+    obst_posi.push_back(temp);
+
+
+    temp.pose.position.x  = 10.269 ;
+    temp.pose.position.y  =  11.001 ; 
+    obst_posi.push_back(temp);
+
+
+    temp.pose.position.x  = 9.569 ;
+    temp.pose.position.y  = 10.001 ; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  =  9.000 ;
+    temp.pose.position.y  = 9.801; 
+    obst_posi.push_back(temp);
+////////////////////////////////////////////////////////////
+    temp.pose.position.x  = 10.669 ;
+    temp.pose.position.y  = 19.501; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 10.000;
+    temp.pose.position.y  = 20.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 10.000 ;
+    temp.pose.position.y  = 22.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 11.000 ;
+    temp.pose.position.y  = 21.001 ; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 10.669 ;
+    temp.pose.position.y  = 20.801; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 12.269 ;
+    temp.pose.position.y  = 19.001; 
+    obst_posi.push_back(temp);    
+
+    temp.pose.position.x  = 11.269 ;
+    temp.pose.position.y  = 20.001; 
+    obst_posi.push_back(temp);
+
+
+    temp.pose.position.x  = 10.269 ;
+    temp.pose.position.y  = 20.501; 
+    obst_posi.push_back(temp);
+
+
+    temp.pose.position.x  = 9.569 ;
+    temp.pose.position.y  = 20.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  =  9.000 ;
+    temp.pose.position.y  = 21.801 ; 
+    obst_posi.push_back(temp);
+    
+///////////////////////////////////////////
+    temp.pose.position.x  = 20.269 ;
+    temp.pose.position.y  = 10.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 18.669 ;
+    temp.pose.position.y  = 10.501; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 19.000 ;
+    temp.pose.position.y  = 10.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 20.000 ;
+    temp.pose.position.y  = 10.501 ; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 19.669 ;
+    temp.pose.position.y  = 10.801; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  = 21.269 ;
+    temp.pose.position.y  = 10.001; 
+    obst_posi.push_back(temp);
+
+
+    temp.pose.position.x  = 21.269 ;
+    temp.pose.position.y  = 9.001; 
+    obst_posi.push_back(temp);
+
+
+    temp.pose.position.x  = 20.269 ;
+    temp.pose.position.y  = 11.001; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  =  19.569;
+    temp.pose.position.y  =  10.801; 
+    obst_posi.push_back(temp);
+
+    temp.pose.position.x  =  18.000 ;
+    temp.pose.position.y  =  10.801 ; 
+    obst_posi.push_back(temp);  
 
     std::vector< std::vector<geometry_msgs::PoseStamped> > obstacles;
     obstacles.resize(6);
@@ -62,7 +185,7 @@ int main(int argc, char **argv) {
     ROS_INFO("here 5");
 
     swarm_control_algorithm.DecisionMaker();   //give corresponding targets
-
+    //swarm_control_algorithm.MarkovDecision();
     ROS_INFO("here 6");
 
     // swarm
